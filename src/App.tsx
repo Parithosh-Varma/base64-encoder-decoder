@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 
 type Mode = 'encode' | 'decode'
 type Format = 'standard' | 'url-safe'
@@ -124,6 +124,24 @@ function App() {
     setCopied(true)
     setTimeout(() => setCopied(false), 1500)
   }
+
+  const handleKeyboard = useCallback((e: KeyboardEvent) => {
+    // Ctrl/Cmd + Enter to encode/decode
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      e.preventDefault()
+      run(input)
+    }
+    // Ctrl/Cmd + Shift + C to copy output
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'C') {
+      e.preventDefault()
+      copyOutput()
+    }
+  }, [input, run, copyOutput])
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyboard)
+    return () => window.removeEventListener('keydown', handleKeyboard)
+  }, [handleKeyboard])
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col items-center transition-colors duration-300">
